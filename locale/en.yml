@@ -1,0 +1,23 @@
+clarkwinkelmann-formulaire-profile-graphs:
+    admin:
+        settings:
+            path: Path (after /u/:username/)
+            navPriority: Nav Priority
+            icon: Nav Icon
+            editFormSlug: Slug of the form to link for edit
+            formUid: UID of the profile form containing the data
+            unitFieldKey: Field Key of the unit selector (optional)
+            dataFieldKey: Field key of the multi-entry field containing the data
+            xAxisFieldKey: X Axis Field Key in Multi-select
+            yAxisFieldKey: Y Axis Field Key in Multi-select
+        permissions:
+            makeOwnPublic: Make own graphs public
+            seePublic: See public graphs
+            seePrivate: See private graphs
+            makeAnyPublic: Change visibility of any user's graphs
+    forum:
+        nav: Graphs
+        title: Graphs
+        editForm: Edit data
+        makePublic: Make data public
+        invisible: This user has not made their data public
