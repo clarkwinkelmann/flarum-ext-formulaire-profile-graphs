@@ -11,8 +11,6 @@ export default class GraphsPage extends UserPage {
     saved: boolean = false
     graphLoaded: boolean = false
 
-    callbackForPlotlyLoaded: () => void | null = null
-
     oninit(vnode: any) {
         super.oninit(vnode);
 
@@ -54,17 +52,17 @@ export default class GraphsPage extends UserPage {
 
         this.graphLoaded = true;
 
-        const element = this.element.querySelector('.js-formulaire-profile-graph');
+        const element = this.element.querySelector('.js-formulaire-profile-graph-plotly');
 
         // If the page shows an error, the element won't exist
         if (!element) {
             return;
         }
 
-        const x = [];
-        const y = [];
+        const x: any[] = [];
+        const y: any[] = [];
 
-        (this.user.attribute('formulaireGraphsData') || []).forEach(entry => {
+        (this.user.attribute<any>('formulaireGraphsData') || []).forEach((entry: [any, any]) => {
             x.push(entry[0]);
             y.push(entry[1]);
         });
@@ -73,9 +71,10 @@ export default class GraphsPage extends UserPage {
             x,
             y,
         }], {
+            height: 500,
             margin: {
-                // Copied from example but actually looks good
-                t: 0,
+                t: 20,
+                b: 50,
             },
             xaxis: {
                 title: {
@@ -88,10 +87,16 @@ export default class GraphsPage extends UserPage {
                 },
             },
         });
+
+        const spinner = this.element.querySelector('.js-formulaire-profile-graph-spinner');
+
+        if (spinner instanceof HTMLElement) {
+            spinner.style.display = 'none';
+        }
     }
 
     content() {
-        if (!this.user.attribute('formulaireGraphsVisible')) {
+        if (!this.user!.attribute('formulaireGraphsVisible')) {
             return m('.FormulaireProfileGraphsContent', [
                 m('.FormulaireProfileGraphsInvisible', app.translator.trans('clarkwinkelmann-formulaire-profile-graphs.forum.invisible')),
             ]);
@@ -100,21 +105,13 @@ export default class GraphsPage extends UserPage {
         const editForm = app.forum.attribute('formulaire-profile-graphs.editForm');
 
         return m('.FormulaireProfileGraphsContent', [
-            m('.FormulaireProfileGraphsData.js-formulaire-profile-graph'),
-            this.user === app.session.user && editForm ? m('.FormulaireProfileGraphsEdit', LinkButton.component({
-                className: 'Button',
-                href: app.route('formulaireProfile', {
-                    username: this.user.username(),
-                    form: editForm,
-                }),
-            }, app.translator.trans('clarkwinkelmann-formulaire-profile-graphs.forum.editForm'))) : null,
-            this.user.attribute('formulaireGraphsCanChangeVisibility') ? m('.FormulaireProfileGraphsSettings', [
+            this.user!.attribute('formulaireGraphsCanChangeVisibility') ? m('.FormulaireProfileGraphsSettings', [
                 Switch.component({
-                    state: this.user.attribute('formulaireGraphsPublic'),
+                    state: this.user!.attribute('formulaireGraphsPublic'),
                     onchange: (state: boolean) => {
                         this.saving = true;
 
-                        this.user.save({
+                        this.user!.save({
                             formulaireGraphsPublic: state,
                         }).then(() => {
                             this.saving = false;
@@ -132,8 +129,23 @@ export default class GraphsPage extends UserPage {
                         });
                     },
                 }, app.translator.trans('clarkwinkelmann-formulaire-profile-graphs.forum.makePublic')),
-                this.saving ? LoadingIndicator.component() : (this.saved ? icon('fas fa-check') : null),
+                this.saving ? m('.FormulaireProfileGraphsSettingsSaving', LoadingIndicator.component({
+                    display: 'inline',
+                })) : (this.saved ? m('.FormulaireProfileGraphsSettingsSaving', icon('fas fa-check')) : null),
             ]) : null,
+            m('.FormulaireProfileGraphsTitle', m('h3', app.translator.trans('clarkwinkelmann-formulaire-profile-graphs.forum.header'))),
+            m('.FormulaireProfileGraphsData', [
+                m('.FormulaireProfileGraphsDataLoading.js-formulaire-profile-graph-spinner', LoadingIndicator.component()),
+                m('.FormulaireProfileGraphsDataPlotly.js-formulaire-profile-graph-plotly'),
+            ]),
+            this.user === app.session.user && editForm ? m('.FormulaireProfileGraphsEdit', LinkButton.component({
+                className: 'Button',
+                href: app.route('formulaireProfile', {
+                    username: this.user!.username(),
+                    form: editForm,
+                }),
+                icon: 'fas fa-pen',
+            }, app.translator.trans('clarkwinkelmann-formulaire-profile-graphs.forum.editForm'))) : null,
         ]);
     }
 }

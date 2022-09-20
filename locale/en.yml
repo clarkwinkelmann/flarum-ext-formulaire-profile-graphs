@@ -18,6 +18,7 @@ clarkwinkelmann-formulaire-profile-graphs:
     forum:
         nav: Graphs
         title: Graphs
+        header: Graphs
         editForm: Edit data
         makePublic: Make data public
         invisible: This user has not made their data public
